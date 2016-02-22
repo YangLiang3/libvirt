@@ -8767,8 +8767,19 @@ qemuDomainHasBuiltinIDE(const virDomainDef *def)
 bool
 qemuDomainNeedsFDC(const virDomainDef *def)
 {
-    /* all supported Q35 machines need explicit FDC */
-    return qemuDomainIsQ35(def);
+    const char *p;
+
+    /* all supported Q35 machines need explicit FDC except for old RHEL-7
+     * machine types */
+    if (!qemuDomainIsQ35(def))
+        return false;
+
+    if ((p = STRSKIP(def->os.machine, "pc-q35-")) &&
+        (STRPREFIX(p, "rhel7.0.0") ||
+         STRPREFIX(p, "rhel7.1.0")))
+        return false;
+
+    return true;
 }
 
 
