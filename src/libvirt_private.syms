@@ -3191,6 +3191,7 @@ virSCSIDeviceGetSgName;
 virSCSIDeviceGetShareable;
 virSCSIDeviceGetTarget;
 virSCSIDeviceGetUnit;
+virSCSIDeviceGetUnprivSGIOSysfsPath;
 virSCSIDeviceIsAvailable;
 virSCSIDeviceListAdd;
 virSCSIDeviceListCount;
