@@ -2780,7 +2780,7 @@ testQemuMonitorJSONBlockdevReopen(const void *opaque)
     if (qemuMonitorTestAddItem(test, "blockdev-reopen", "{\"return\":{}}") < 0)
         return -1;
 
-    if (qemuBlockReopenFormatMon(qemuMonitorTestGetMonitor(test), src) < 0)
+    if (qemuBlockReopenFormatMon(qemuMonitorTestGetMonitor(test), src, false) < 0)
         return -1;
 
     return 0;

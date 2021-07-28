@@ -3331,7 +3331,8 @@ qemuBlockBitmapsHandleCommitFinish(virStorageSource *topsrc,
 
 int
 qemuBlockReopenFormatMon(qemuMonitor *mon,
-                         virStorageSource *src)
+                         virStorageSource *src,
+                         bool downstream)
 {
     g_autoptr(virJSONValue) reopenprops = NULL;
     g_autoptr(virJSONValue) srcprops = NULL;
@@ -3340,15 +3341,19 @@ qemuBlockReopenFormatMon(qemuMonitor *mon,
     if (!(srcprops = qemuBlockStorageSourceGetBlockdevProps(src, src->backingStore)))
         return -1;
 
-    if (virJSONValueArrayAppend(reopenoptions, &srcprops) < 0)
-        return -1;
+    if (downstream) {
+        reopenprops = g_steal_pointer(&srcprops);
+    } else {
+        if (virJSONValueArrayAppend(reopenoptions, &srcprops) < 0)
+            return -1;
 
-    if (virJSONValueObjectAdd(&reopenprops,
-                              "a:options", &reopenoptions,
-                              NULL) < 0)
-        return -1;
+        if (virJSONValueObjectAdd(&reopenprops,
+                                  "a:options", &reopenoptions,
+                                  NULL) < 0)
+            return -1;
+    }
 
-    if (qemuMonitorBlockdevReopen(mon, &reopenprops) < 0)
+    if (qemuMonitorBlockdevReopen(mon, &reopenprops, downstream) < 0)
         return -1;
 
     return 0;
@@ -3372,6 +3377,7 @@ qemuBlockReopenFormat(virDomainObj *vm,
 {
     qemuDomainObjPrivate *priv = vm->privateData;
     virQEMUDriver *driver = priv->driver;
+    bool downstream = virQEMUCapsGet(priv->qemuCaps, QEMU_CAPS_BLOCKDEV_REOPEN_COM_REDHAT_AV_8_2_0_API);
     int rc;
 
     /* If we are lacking the object here, qemu might have opened an image with
@@ -3385,7 +3391,7 @@ qemuBlockReopenFormat(virDomainObj *vm,
     if (qemuDomainObjEnterMonitorAsync(driver, vm, asyncJob) < 0)
         return -1;
 
-    rc = qemuBlockReopenFormatMon(priv->mon, src);
+    rc = qemuBlockReopenFormatMon(priv->mon, src, downstream);
 
     qemuDomainObjExitMonitor(driver, vm);
     if (rc < 0)

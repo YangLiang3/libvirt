@@ -634,6 +634,9 @@ typedef enum { /* virQEMUCapsFlags grouping marker for syntax-check */
     QEMU_CAPS_SEV_GUEST_KERNEL_HASHES, /* sev-guest.kernel-hashes= */
     QEMU_CAPS_SEV_INJECT_LAUNCH_SECRET, /* 'sev-inject-launch-secret' qmp command present */
 
+    /* 420 */
+    QEMU_CAPS_BLOCKDEV_REOPEN_COM_REDHAT_AV_8_2_0_API, /* downstream support for blockdev reopen in rhel-av-8.2.0 */
+
     QEMU_CAPS_LAST /* this must always be the last item */
 } virQEMUCapsFlags;
 
