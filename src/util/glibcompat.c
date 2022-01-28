@@ -212,51 +212,21 @@ vir_g_strdup_vprintf(const char *msg, va_list args)
     return ret;
 }
 
-
 /*
- * If the last reference to a GSource is released in a non-main
- * thread we're exposed to a race condition that causes a
- * crash:
+ * This is a leftover of a hack that works around glib older than 2.64.0, but
+ * the fix in glib as backported in RHEL-8 to glib2-2.56.4-12 in BZ 1948988:
  *
- *    https://gitlab.gnome.org/GNOME/glib/-/merge_requests/1358
+ *   https://bugzilla.redhat.com/show_bug.cgi?id=1948988
  *
- * Thus we're using an idle func to release our ref...
+ * and our workaround coupled with that glib fix started causing leaks, which
+ * surfaced with us not unreferencing the qemu monitor socket in BZ 2045879:
  *
- * ...but this imposes a significant performance penalty on
- * I/O intensive workloads which are sensitive to the iterations
- * of the event loop, so avoid the workaround if we know we have
- * new enough glib.
+ *   https://bugzilla.redhat.com/show_bug.cgi?id=2045879
  *
- * The function below is used from a header file definition.
- *
- * Drop when min glib >= 2.64.0
+ * Keeping this wrapper makes it easier to follow with other backports without
+ * conflicts in callers due to the function name change.
  */
-#if GLIB_CHECK_VERSION(2, 64, 0)
 void vir_g_source_unref(GSource *src, GMainContext *ctx G_GNUC_UNUSED)
 {
     g_source_unref(src);
 }
-#else
-
-static gboolean
-virEventGLibSourceUnrefIdle(gpointer data)
-{
-    GSource *src = data;
-
-    g_source_unref(src);
-
-    return FALSE;
-}
-
-void vir_g_source_unref(GSource *src, GMainContext *ctx)
-{
-    GSource *idle = g_idle_source_new();
-
-    g_source_set_callback(idle, virEventGLibSourceUnrefIdle, src, NULL);
-
-    g_source_attach(idle, ctx);
-
-    g_source_unref(idle);
-}
-
-#endif
