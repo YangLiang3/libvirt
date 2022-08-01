@@ -3486,6 +3486,9 @@ mymain(void)
 
     DO_TEST_CAPS_LATEST("devices-acpi-index");
 
+    DO_TEST_CAPS_VER("sgx-epc", "6.2.0");
+    DO_TEST_CAPS_LATEST("sgx-epc-numa");
+
     if (getenv("LIBVIRT_SKIP_CLEANUP") == NULL)
         virFileDeleteTree(fakerootdir);
 
