@@ -637,6 +637,9 @@ typedef enum { /* virQEMUCapsFlags grouping marker for syntax-check */
     /* 420 */
     QEMU_CAPS_BLOCKDEV_REOPEN_COM_REDHAT_AV_8_2_0_API, /* downstream support for blockdev reopen in rhel-av-8.2.0 */
 
+    /* 421 */
+    QEMU_CAPS_SGX_EPC, /* -object sgx-epc,... */
+
     QEMU_CAPS_LAST /* this must always be the last item */
 } virQEMUCapsFlags;
 
@@ -828,6 +831,9 @@ virQEMUCapsCPUFeatureFromQEMU(virQEMUCaps *qemuCaps,
 
 virSEVCapability *
 virQEMUCapsGetSEVCapabilities(virQEMUCaps *qemuCaps);
+
+virSGXCapabilityPtr
+virQEMUCapsGetSGXCapabilities(virQEMUCaps *qemuCaps);
 
 bool
 virQEMUCapsGetKVMSupportsSecureGuest(virQEMUCaps *qemuCaps) G_GNUC_NO_INLINE;

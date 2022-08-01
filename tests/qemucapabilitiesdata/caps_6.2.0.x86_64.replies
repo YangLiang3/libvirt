@@ -7459,15 +7459,15 @@
           "type": "bool"
         },
         {
+          "name": "flc",
+          "type": "bool"
+        },
+        {
           "name": "sgx1",
           "type": "bool"
         },
         {
           "name": "sgx2",
-          "type": "bool"
-        },
-        {
-          "name": "flc",
           "type": "bool"
         },
         {
@@ -32456,6 +32456,22 @@
     "class": "GenericError",
     "desc": "SEV: Failed to open /dev/sev: No such file or directory"
   }
+}
+
+{
+  "execute": "query-sgx-capabilities",
+  "id": "libvirt-51"
+}
+
+{
+  "return": {
+    "sgx": true,
+    "flc": false,
+    "sgx1": true,
+    "sgx2": false,
+    "section-size": 2048
+  },
+  "id": "libvirt-51"
 }
 
 {
